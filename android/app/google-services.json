@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "280223146628",
+    "project_id": "elysian-ddd0b",
+    "storage_bucket": "elysian-ddd0b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:280223146628:android:ad4d911a0dff57609258d1",
+        "android_client_info": {
+          "package_name": "com.example.elysian_admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDv40jhwOft45UFdP8pwz_QSQjjjgXaf88"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

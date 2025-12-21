@@ -1,0 +1,29 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "elysian-ddd0b",
+                    "appId": "1:280223146628:android:ad4d911a0dff57609258d1",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "elysian-ddd0b",
+                    "configurations": {
+                        "android": "1:280223146628:android:ad4d911a0dff57609258d1",
+                        "ios": "1:280223146628:ios:92dfdff8e7acb3399258d1",
+                        "web": "1:280223146628:web:72577c3b7e372b6e9258d1"
+                    }
+                }
+            }
+        }
+    },
+    "firestore": {
+        "indexes": "firestore.indexes.json"
+    },
+    "storage": {
+        "rules": "storage.rules"
+    }
+}
