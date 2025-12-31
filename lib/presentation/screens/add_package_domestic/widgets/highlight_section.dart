@@ -32,6 +32,7 @@ class HighlightsSection extends StatelessWidget {
               const SizedBox(height: 12),
               CustomTextField(
                 label: 'Enter highlights (one per line)',
+                value: state.highlights,
                 maxLines: 6,
                 errorText: state.highlightsError,
                 onChanged: (value) {

@@ -100,7 +100,7 @@ class AddPackageForm extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12.0),
             child: BulletTextField(
-              controller: TextEditingController(text: item),
+              value: item,
               onChanged: (value) {
                 context.read<AddPackageBloc>().add(
                   UpdateSectionItem(
@@ -127,7 +127,7 @@ class AddPackageForm extends StatelessWidget {
           );
         }).toList(),
         BulletTextField(
-          controller: TextEditingController(),
+          value: '',
           hintText: items.isEmpty ? placeholder : null,
           onSubmitted: (value) {
             if (value.isNotEmpty) {

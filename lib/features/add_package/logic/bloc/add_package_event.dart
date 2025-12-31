@@ -110,6 +110,13 @@ class PackageNameChanged extends AddPackageEvent {
   List<Object> get props => [packageName];
 }
 
+class CategoryNameChanged extends AddPackageEvent {
+  final String categoryName;
+  const CategoryNameChanged(this.categoryName);
+  @override
+  List<Object> get props => [categoryName];
+}
+
 class PriceChanged extends AddPackageEvent {
   final String price;
   const PriceChanged(this.price);

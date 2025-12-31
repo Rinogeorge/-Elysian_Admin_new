@@ -13,6 +13,7 @@ import 'package:elysian_admin/features/add_package/domain/repositories/package_r
 import 'package:elysian_admin/injection_container.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:elysian_admin/presentation/screens/add_package_domestic/add_package.dart';
+import 'package:elysian_admin/presentation/screens/package_details/widgets/bottom_price_bar.dart';
 
 class PackageDetails extends StatelessWidget {
   final PackageModel? package;
@@ -84,6 +85,26 @@ class PackageDetails extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (pkg.categoryName.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              pkg.categoryName,
+                              style: TextStyle(
+                                color: Colors.blue.shade700,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 8),
                         Text(
                           pkg.packageName,
                           style: const TextStyle(
@@ -271,6 +292,7 @@ class PackageDetails extends StatelessWidget {
                 ],
               ),
             ),
+            bottomNavigationBar: BottomPriceBar(price: pkg.price),
           );
         },
       ),

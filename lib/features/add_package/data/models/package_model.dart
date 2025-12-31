@@ -1,6 +1,8 @@
 class PackageModel {
   final String? id;
+  final String categoryName;
   final String packageName;
+
   final String type;
   final double price;
   final String duration;
@@ -11,12 +13,15 @@ class PackageModel {
   final List<String> exclusions;
   final List<String> accommodation;
   final List<String> meals;
+  final List<String> tourManager;
   final Map<String, ItineraryDay> itinerary;
   final DateTime? createdAt;
 
   PackageModel({
     this.id,
+    this.categoryName = '',
     required this.packageName,
+
     required this.type,
     required this.price,
     required this.duration,
@@ -27,6 +32,7 @@ class PackageModel {
     required this.exclusions,
     required this.accommodation,
     required this.meals,
+    required this.tourManager,
     required this.itinerary,
     this.createdAt,
   });
@@ -34,7 +40,9 @@ class PackageModel {
   factory PackageModel.fromJson(Map<String, dynamic> json, String id) {
     return PackageModel(
       id: id,
+      categoryName: json['categoryName'] as String? ?? '',
       packageName: json['packageName'] as String? ?? '',
+
       type: json['type'] as String? ?? '',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       duration: json['duration'] as String? ?? '',
@@ -45,6 +53,7 @@ class PackageModel {
       exclusions: List<String>.from(json['exclusions'] ?? []),
       accommodation: List<String>.from(json['accommodation'] ?? []),
       meals: List<String>.from(json['meals'] ?? []),
+      tourManager: List<String>.from(json['tourManager'] ?? []),
       itinerary:
           (json['itinerary'] as Map<String, dynamic>?)?.map(
             (key, value) => MapEntry(
@@ -62,7 +71,9 @@ class PackageModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'categoryName': categoryName,
       'packageName': packageName,
+
       'type': type,
       'price': price,
       'duration': duration,
@@ -73,6 +84,7 @@ class PackageModel {
       'exclusions': exclusions,
       'accommodation': accommodation,
       'meals': meals,
+      'tourManager': tourManager,
       'itinerary': itinerary.map((key, value) => MapEntry(key, value.toJson())),
       'createdAt': createdAt?.toIso8601String(),
     };

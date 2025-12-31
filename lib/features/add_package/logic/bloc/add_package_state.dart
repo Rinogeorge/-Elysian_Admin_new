@@ -19,6 +19,7 @@ class AddPackageState extends Equatable {
   final List<String> inclusionsList;
   final List<String> exclusionsList;
 
+  final String categoryName;
   final String packageName;
   final String price;
   final String numberOfDays;
@@ -63,6 +64,7 @@ class AddPackageState extends Equatable {
     this.inclusionsList = const [],
     this.exclusionsList = const [],
     this.packageName = '',
+    this.categoryName = '',
     this.price = '',
     this.numberOfDays = '',
     this.highlights = '',
@@ -101,6 +103,7 @@ class AddPackageState extends Equatable {
     List<String>? inclusionsList,
     List<String>? exclusionsList,
     String? packageName,
+    String? categoryName,
     String? price,
     String? numberOfDays,
     String? highlights,
@@ -138,6 +141,7 @@ class AddPackageState extends Equatable {
       inclusionsList: inclusionsList ?? this.inclusionsList,
       exclusionsList: exclusionsList ?? this.exclusionsList,
       packageName: packageName ?? this.packageName,
+      categoryName: categoryName ?? this.categoryName,
       price: price ?? this.price,
       numberOfDays: numberOfDays ?? this.numberOfDays,
       highlights: highlights ?? this.highlights,
@@ -186,6 +190,7 @@ class AddPackageState extends Equatable {
     inclusionsList,
     exclusionsList,
     packageName,
+    categoryName,
     price,
     numberOfDays,
     highlights,

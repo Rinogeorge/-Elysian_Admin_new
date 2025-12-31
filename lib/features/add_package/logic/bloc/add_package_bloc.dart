@@ -25,6 +25,7 @@ class AddPackageBloc extends Bloc<AddPackageEvent, AddPackageState> {
     on<PickDayImage>(_onPickDayImage);
     on<UpdateDayDescription>(_onUpdateDayDescription);
     on<PackageNameChanged>(_onPackageNameChanged);
+    on<CategoryNameChanged>(_onCategoryNameChanged);
     on<PriceChanged>(_onPriceChanged);
     on<NumberOfDaysChanged>(_onNumberOfDaysChanged);
     on<HighlightsChanged>(_onHighlightsChanged);
@@ -57,6 +58,7 @@ class AddPackageBloc extends Bloc<AddPackageEvent, AddPackageState> {
       state.copyWith(
         packageId: pkg.id,
         packageName: pkg.packageName,
+        categoryName: pkg.categoryName,
         tourType: pkg.type,
         price: pkg.price.toString(),
         numberOfDays: pkg.duration,
@@ -67,6 +69,7 @@ class AddPackageBloc extends Bloc<AddPackageEvent, AddPackageState> {
         exclusionsList: pkg.exclusions,
         accommodationList: pkg.accommodation,
         mealsList: pkg.meals,
+        tourManagerList: pkg.tourManager,
         dayDescriptions: dayDescriptions,
         existingDayImageUrls: existingDayImages,
         status: ImagePickerStatus.success, // To indicate data is loaded
@@ -114,6 +117,13 @@ class AddPackageBloc extends Bloc<AddPackageEvent, AddPackageState> {
     emit(
       state.copyWith(packageName: event.packageName, packageNameError: null),
     );
+  }
+
+  void _onCategoryNameChanged(
+    CategoryNameChanged event,
+    Emitter<AddPackageState> emit,
+  ) {
+    emit(state.copyWith(categoryName: event.categoryName));
   }
 
   void _onPriceChanged(PriceChanged event, Emitter<AddPackageState> emit) {
@@ -239,8 +249,12 @@ class AddPackageBloc extends Bloc<AddPackageEvent, AddPackageState> {
         );
         break;
       case SectionType.tourManager:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        currentList = List.from(state.tourManagerList);
+        currentList.add(event.item);
+        emit(
+          state.copyWith(tourManagerList: currentList, tourManagerError: null),
+        );
+        break;
     }
   }
 
@@ -323,8 +337,12 @@ class AddPackageBloc extends Bloc<AddPackageEvent, AddPackageState> {
         }
         break;
       case SectionType.tourManager:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        currentList = List.from(state.tourManagerList);
+        if (event.index >= 0 && event.index < currentList.length) {
+          currentList[event.index] = event.item;
+          emit(state.copyWith(tourManagerList: currentList));
+        }
+        break;
     }
   }
 
@@ -469,24 +487,35 @@ class AddPackageBloc extends Bloc<AddPackageEvent, AddPackageState> {
     emit(state.copyWith(tourType: event.tourType));
   }
 
+  Future<List<String>> _uploadNewImages(
+    List<XFile> images,
+    String folder,
+  ) async {
+    final uploadFutures = images.map(
+      (image) =>
+          _cloudinaryService.uploadImage(imagePath: image.path, folder: folder),
+    );
+    return Future.wait(uploadFutures);
+  }
+
   Future<void> _onSubmitPackage(
     SubmitPackage event,
     Emitter<AddPackageState> emit,
   ) async {
     // 1. Validate Form
     add(ValidateForm());
+
+    // Quick blocking validation check
     if (state.packageName.trim().isEmpty ||
         (state.images.isEmpty && state.existingImageUrls.isEmpty) ||
         state.price.trim().isEmpty ||
         state.numberOfDays.isEmpty) {
-      // Re-running validation logic synchronously for blocking:
+      // Double check critical fields
       bool isValid = true;
       if (state.packageName.trim().isEmpty) isValid = false;
       if (state.images.isEmpty && state.existingImageUrls.isEmpty)
         isValid = false;
-      // ... (other checks should ideally be duplicated or checked via state error fields if they were updated immediately)
 
-      // Simplified blocking check for major fields
       if (!isValid) {
         emit(state.copyWith(errorMessage: "Please fix validation errors"));
         return;
@@ -496,55 +525,52 @@ class AddPackageBloc extends Bloc<AddPackageEvent, AddPackageState> {
     emit(state.copyWith(isSubmitting: true, errorMessage: null));
 
     try {
-      // 2. Upload Main Package Images
+      // 2. Upload Main Package Images (Parallel)
       final List<String> packageImageUrls = List.from(state.existingImageUrls);
-      for (final image in state.images) {
-        final url = await _cloudinaryService.uploadImage(
-          imagePath: image.path,
-          folder: 'packages/${state.tourType}',
-        );
-        packageImageUrls.add(url);
-      }
+      final newPackageUrls = await _uploadNewImages(
+        state.images,
+        'packages/${state.tourType}',
+      );
+      packageImageUrls.addAll(newPackageUrls);
 
-      // 3. Upload Itinerary Day Images
+      // 3. Upload Itinerary Day Images (Parallel)
       final Map<String, List<String>> dayImageUrls = {};
 
-      // Process all days (existing ones might need migration or just re-mapping)
-      // We iterate through dayDescriptions keys as the source of truth for days
+      // Initialize with existing day images
       state.dayDescriptions.keys.forEach((dayIndex) {
-        final List<String> urls = [];
-
-        // Add existing images for this day
         if (state.existingDayImageUrls.containsKey(dayIndex)) {
-          urls.addAll(state.existingDayImageUrls[dayIndex]!);
-        }
-
-        dayImageUrls[dayIndex.toString()] = urls;
-      });
-
-      // Now process new images to upload
-      for (final entry in state.dayImages.entries) {
-        final dayIndex = entry.key;
-        final images = entry.value;
-
-        // Ensure list exists in dayImageUrls map
-        if (!dayImageUrls.containsKey(dayIndex.toString())) {
+          dayImageUrls[dayIndex.toString()] = List.from(
+            state.existingDayImageUrls[dayIndex]!,
+          );
+        } else {
           dayImageUrls[dayIndex.toString()] = [];
         }
+      });
 
-        for (final image in images) {
-          final url = await _cloudinaryService.uploadImage(
-            imagePath: image.path,
-            folder: 'packages/${state.tourType}/day_$dayIndex',
-          );
-          dayImageUrls[dayIndex.toString()]!.add(url);
+      // Prepare parallel uploads for all days
+      final dayUploadFutures = state.dayImages.entries.map((entry) async {
+        final dayIndex = entry.key;
+        final images = entry.value;
+        final folder = 'packages/${state.tourType}/day_$dayIndex';
+        final urls = await _uploadNewImages(images, folder);
+        return MapEntry(dayIndex.toString(), urls);
+      });
+
+      // Execute all day uploads
+      final newDayImageResults = await Future.wait(dayUploadFutures);
+
+      // Merge results
+      for (final result in newDayImageResults) {
+        if (!dayImageUrls.containsKey(result.key)) {
+          dayImageUrls[result.key] = [];
         }
+        dayImageUrls[result.key]!.addAll(result.value);
       }
 
       // 4. Construct Data Object for Firestore
-
       final packageData = {
         'packageName': state.packageName,
+        'categoryName': state.categoryName,
         'type': state.tourType,
         'price': double.tryParse(state.price) ?? 0.0,
         'duration': state.numberOfDays,
@@ -555,6 +581,7 @@ class AddPackageBloc extends Bloc<AddPackageEvent, AddPackageState> {
         'exclusions': state.exclusionsList,
         'accommodation': state.accommodationList,
         'meals': state.mealsList,
+        'tourManager': state.tourManagerList,
         'itinerary': state.dayDescriptions.map(
           (key, value) => MapEntry(key.toString(), {
             'description': value,

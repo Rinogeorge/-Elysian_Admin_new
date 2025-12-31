@@ -8,14 +8,16 @@ class PackageRepositoryImpl implements PackageRepository {
   PackageRepositoryImpl({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
+  String _getCollectionName(String type) {
+    return type == 'International'
+        ? 'international_packages'
+        : 'domestic_packages';
+  }
+
   @override
   Future<void> addPackage(Map<String, dynamic> packageData) async {
     try {
-      final collectionName =
-          packageData['type'] == 'International'
-              ? 'international_packages'
-              : 'domestic_packages';
-
+      final collectionName = _getCollectionName(packageData['type']);
       await _firestore.collection(collectionName).add(packageData);
     } catch (e) {
       throw Exception('Failed to add package to Firestore: $e');
@@ -25,11 +27,7 @@ class PackageRepositoryImpl implements PackageRepository {
   @override
   Future<List<PackageModel>> getPackages({required String type}) async {
     try {
-      final collectionName =
-          type == 'International'
-              ? 'international_packages'
-              : 'domestic_packages';
-
+      final collectionName = _getCollectionName(type);
       final querySnapshot = await _firestore.collection(collectionName).get();
 
       return querySnapshot.docs.map((doc) {
@@ -43,11 +41,7 @@ class PackageRepositoryImpl implements PackageRepository {
   @override
   Future<void> deletePackage({required String id, required String type}) async {
     try {
-      final collectionName =
-          type == 'International'
-              ? 'international_packages'
-              : 'domestic_packages';
-
+      final collectionName = _getCollectionName(type);
       await _firestore.collection(collectionName).doc(id).delete();
     } catch (e) {
       throw Exception('Failed to delete package from Firestore: $e');
@@ -60,11 +54,7 @@ class PackageRepositoryImpl implements PackageRepository {
     required Map<String, dynamic> packageData,
   }) async {
     try {
-      final collectionName =
-          packageData['type'] == 'International'
-              ? 'international_packages'
-              : 'domestic_packages';
-
+      final collectionName = _getCollectionName(packageData['type']);
       await _firestore.collection(collectionName).doc(id).update(packageData);
     } catch (e) {
       throw Exception('Failed to update package in Firestore: $e');

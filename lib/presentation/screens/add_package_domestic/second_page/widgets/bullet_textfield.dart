@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-class BulletTextField extends StatelessWidget {
+class BulletTextField extends StatefulWidget {
   final String? hintText;
-  final TextEditingController? controller;
+  final String? value;
   final Function(String)? onSubmitted;
   final Function(String)? onChanged;
   final VoidCallback? onRemove;
@@ -10,11 +10,41 @@ class BulletTextField extends StatelessWidget {
   const BulletTextField({
     super.key,
     this.hintText,
-    this.controller,
+    this.value,
     this.onSubmitted,
     this.onChanged,
     this.onRemove,
   });
+
+  @override
+  State<BulletTextField> createState() => _BulletTextFieldState();
+}
+
+class _BulletTextFieldState extends State<BulletTextField> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.value);
+  }
+
+  @override
+  void didUpdateWidget(covariant BulletTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != null && widget.value != _controller.text) {
+      _controller.text = widget.value!;
+      _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: _controller.text.length),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,26 +62,26 @@ class BulletTextField extends StatelessWidget {
         ),
         Expanded(
           child: TextFormField(
-            controller: controller,
+            controller: _controller,
             maxLines: null,
             textInputAction: TextInputAction.done,
             onChanged: (value) {
               if (value.endsWith('\n')) {
-                if (onSubmitted != null) {
+                if (widget.onSubmitted != null) {
                   final newValue = value.replaceAll('\n', '');
-                  controller?.text = newValue;
-                  controller?.selection = TextSelection.fromPosition(
+                  _controller.text = newValue;
+                  _controller.selection = TextSelection.fromPosition(
                     TextPosition(offset: newValue.length),
                   );
-                  onSubmitted!(newValue);
+                  widget.onSubmitted!(newValue);
                 }
               } else {
-                onChanged?.call(value);
+                widget.onChanged?.call(value);
               }
             },
-            onFieldSubmitted: onSubmitted,
+            onFieldSubmitted: widget.onSubmitted,
             decoration: InputDecoration(
-              hintText: hintText,
+              hintText: widget.hintText,
               hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
@@ -60,9 +90,9 @@ class BulletTextField extends StatelessWidget {
             style: const TextStyle(fontSize: 14, color: Colors.black87),
           ),
         ),
-        if (onRemove != null)
+        if (widget.onRemove != null)
           IconButton(
-            onPressed: onRemove,
+            onPressed: widget.onRemove,
             icon: const Icon(Icons.close, size: 18, color: Colors.grey),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),

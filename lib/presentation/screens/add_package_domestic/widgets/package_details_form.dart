@@ -49,6 +49,9 @@ class PackageDetailsForm extends StatelessWidget {
                   context.read<CategoryBloc>().add(
                     SelectCategory(category: value),
                   );
+                  context.read<AddPackageBloc>().add(
+                    CategoryNameChanged(value.name),
+                  );
                 }
               },
             );
@@ -70,6 +73,7 @@ class PackageDetailsForm extends StatelessWidget {
                 const SizedBox(height: 8),
                 CustomTextField(
                   label: 'Enter Package name',
+                  value: state.packageName,
                   errorText: state.packageNameError,
                   onChanged: (value) {
                     context.read<AddPackageBloc>().add(
@@ -89,6 +93,7 @@ class PackageDetailsForm extends StatelessWidget {
                 const SizedBox(height: 8),
                 CustomTextField(
                   label: 'Enter Price',
+                  value: state.price,
                   errorText: state.priceError,
                   onChanged: (value) {
                     context.read<AddPackageBloc>().add(PriceChanged(value));
