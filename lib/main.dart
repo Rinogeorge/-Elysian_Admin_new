@@ -5,7 +5,9 @@ import 'package:elysian_admin/features/auth/logic/bloc/signup/signup_bloc.dart';
 import 'package:elysian_admin/features/category/logic/bloc/category/category_bloc.dart';
 import 'package:elysian_admin/firebase_options.dart';
 import 'package:elysian_admin/injection_container.dart' as di;
+import 'package:elysian_admin/presentation/screens/package_details/widgets/itinerary.dart';
 import 'package:elysian_admin/presentation/screens/splash/splash_screen.dart';
+import 'package:elysian_admin/presentation/screens/user_side_ui/home_category_grid.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,7 +36,8 @@ class ElysianApp extends StatelessWidget {
         title: 'Elysian_Admin',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'Roboto'),
-        home: const SplashScreen(),
+        // home: const SplashScreen(),
+        home: HomeCategoryGrid(),
       ),
     );
   }

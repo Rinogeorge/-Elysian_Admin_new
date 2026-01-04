@@ -25,6 +25,7 @@ import 'package:elysian_admin/features/category/domain/usecases/delete_category_
 import 'package:elysian_admin/features/category/domain/usecases/get_categories_usecase.dart';
 import 'package:elysian_admin/features/category/domain/usecases/update_category_usecase.dart';
 import 'package:elysian_admin/features/category/logic/bloc/category/category_bloc.dart';
+import 'package:elysian_admin/presentation/screens/user_side_ui/bloc/user_category_bloc.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -54,6 +55,7 @@ Future<void> init() async {
   sl.registerFactory(
     () => AddPackageBloc(cloudinaryService: sl(), packageRepository: sl()),
   );
+  sl.registerFactory(() => UserCategoryBloc(getCategoriesUseCase: sl()));
 
   // Use Cases - Auth
   sl.registerLazySingleton(() => LoginUseCase(sl()));
